@@ -33,7 +33,7 @@ function odd (n) {
 %}
 
 %token PROCEDURE CALL BEGIN END IF THEN WHILE DO
-%token ID E PI EOF CONST VAR NUMBER
+%token ID E PI EOF CONST VAR NUMBER DOT
 
 /* operator associations and precedence */
 %right '='
@@ -51,7 +51,7 @@ function odd (n) {
 %% /* language grammar */
 
 program
-    : block '.' EOF
+    : block DOT EOF
         { 
           $$ = $1; 
           //console.log($$);
