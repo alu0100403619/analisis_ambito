@@ -8,7 +8,7 @@
 * **Profesor:** Casiano Rodriguez
 * **Práctica:** Parsin con jison en JavaScript
 * **Autor:** Jorge O. Blanchard Cruz y Gonzalo J. García Martin
-* **Fork:** [Casiano Rodriguez](https://github.com/crguezl/prdcalc)
+* **Fork:** [Casiano Rodriguez]()
 * **Version:** 3.5.2
 
 Practica de Parsing con jison en JavaScript, es la octava práctica de la asignatura de procesadores del lenguaje.

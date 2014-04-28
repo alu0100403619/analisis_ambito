@@ -39,10 +39,12 @@ function odd (n) {
 %right '='
 %left '+' '-'
 %left '*' '/'
-%left '^'
-%right '%'
-%left UMINUS
-%left '!'
+//%left '^'
+//%right '%'
+//%left UMINUS
+//%left '!'
+
+%right THEN ELSE
 
 %start program
 
