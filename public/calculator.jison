@@ -39,10 +39,10 @@ function odd (n) {
 %right '='
 %left '+' '-'
 %left '*' '/'
-//%left '^'
-//%right '%'
-//%left UMINUS
-//%left '!'
+%left '^'
+%right '%'
+%left UMINUS
+%left '!'
 
 %right THEN ELSE
 
@@ -60,10 +60,14 @@ program
         }
     ;
 
-block
+/*block
     : consts
     | vars
     | proclists statement
+    ;*/
+
+block
+    : consts vars proclists statement
     ;
 
 consts
@@ -101,9 +105,8 @@ arguments
     ;
     
 statement
-    //: /*empty*/
-    : ID '=' expression
-    | CALL ID
+    :  ID '=' expression
+    | CALL ID //Lista de Argumentos ------------------------------------
     | BEGIN statement statementlist END
     | IF condition THEN statement
     | WHILE condition DO statement
@@ -118,87 +121,50 @@ condition
     : ODD expression
     | expression COMPARISSON expression
     ;
-    
-expression
-    : '+' term expressionlist
-    | '-' term expressionlist
-    ;
 
-expressionlist
-    : /*empty*/
-    | '+' term expressionlist
-    | '-' term expressionlist
-    ;
-
-term
-    : factor termlist
-    ;
-    
-termlist
-    : /*empty*/
-    | '*' factor termlist
-    | '/' factor termlist
-    ;
-    
 assignment
     : ID '=' NUMBER
     ;
-
-factor
-    : '(' expression ')'
-    | ID
-    | NUMBER
-    ;
-//--------------------------------------------------------------
-// expressions
-//     : s
-//     | expressions ';' s
-//     ;
-// 
-// s
-//     : /* empty */
-//     | e
-//     ;
-// 
-// e
-//     : ID '=' e
+    
+expression
+    : ID '=' expression
 //         { symbol_table[$1] = $$ = $3; }        
-//     | PI '=' e 
+     | PI '=' expression 
 //         { throw new Error("Can't assign to constant 'π'"); }
-//     | E '=' e 
+     | E '=' expression 
 //         { throw new Error("Can't assign to math constant 'e'"); }
-//     | e '+' e
+     | expression '+' expression
 //         {$$ = $1+$3;}
-//     | e '-' e
+     | expression '-' expression
 //         {$$ = $1-$3;}
-//     | e '*' e
+     | expression '*' expression
 //         {$$ = $1*$3;}
-//     | e '/' e
+     | expression '/' expression
 //         {
 //           if ($3 == 0) throw new Error("Division by zero, error!");
 //           $$ = $1/$3;
 //         }
-//     | e '^' e
+     | expression '^' expression
 //         {$$ = Math.pow($1, $3);}
-//     | e '!'
+     | expression '!'
 //         {
 //           if ($1 % 1 !== 0) 
 //              throw "Error! Attempt to compute the factorial of "+
 //                    "a floating point number "+$1;
 //           $$ = fact($1);
 //         }
-//     | e '%'
+     | expression '%'
 //         {$$ = $1/100;}
-//     | '-' e %prec UMINUS
+     | '-' expression %prec UMINUS
 //         {$$ = -$2;}
-//     | '(' e ')'
+     | '(' expression ')'
 //         {$$ = $2;}
-//     | NUMBER
+     | NUMBER
 //         {$$ = Number(yytext);} 
-//     | E
+     | E
 //         {$$ = Math.E;}
-//     | PI
+     | PI
 //         {$$ = Math.PI;}        
-//     | ID 
+     | ID 
 //         { $$ = symbol_table[yytext] || 0; }        
-//     ;
+     ;
