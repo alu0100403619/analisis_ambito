@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>jison</title>
+    <link rel="icon" type="image/jpg" href="favicon.jpg" />
+    <link rel="stylesheet" href="/styles.css" type="text/css" media="screen" charset="utf-8" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li> <a href="/grammar"  title="Grammar" <%=current?("/grammar")%>>Grammar</a> </li>
+        <li> <a href="/"  title="Home" <%=current?("/")%>>Home</a> </li>
+        <li> <a href="/auth/google_oauth2"  title="Google" <%=current?("/auth/google_oauth2")%>>Sign in with Google</a> </li>
+        <li> <a href="https://bitbucket.org/pl_group/calc_jison"  title="Repo">Repo</a> </li>
+        <li> <a href="http://en.wikipedia.org/wiki/Recursive_descent_parser#Example_parser"   title="Wikipedia">PL0</a> </li>
+        <li> <a href="http://zaach.github.io/jison/"  title="Jison">Jison</a> </li>
+        <li> <a href="http://intridea.github.io/omniauth/"  title="Omniauth">Intridea Omniauth</a> </li>
+        <li> <a href="https://console.developers.google.com/project"  title="Google Developers Console">Google Developers Console</a> </li>
+        <li> <a href="http://crguezl.github.io/pl-html/"  title="PLGH">PL-GH</a> </li>
+        <li> <a href="https://github.com/SFEley/sinatra-flash"  title="sinatra-flash">sinatra-flash</a> </li>
+      </ul>
+    </nav>
+    <%= yield %>
+  </body>
+</html>
+
