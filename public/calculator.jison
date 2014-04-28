@@ -49,7 +49,7 @@ function odd (n) {
 %% /* language grammar */
 
 program
-    : block EOF
+    : block '.' EOF
         { 
           $$ = $1; 
           //console.log($$);
@@ -118,12 +118,14 @@ condition
     ;
     
 expression
-    : MASMENOS term expressionlist
+    : '+' term expressionlist
+    | '-' term expressionlist
     ;
 
 expressionlist
     : /*empty*/
-    | MASMENOS term expressionlist
+    | '+' term expressionlist
+    | '-' term expressionlist
     ;
 
 term
@@ -132,7 +134,8 @@ term
     
 termlist
     : /*empty*/
-    | MULDIV factor termlist
+    | '*' factor termlist
+    | '/' factor termlist
     ;
     
 assignment
