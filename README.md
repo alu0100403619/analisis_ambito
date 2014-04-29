@@ -1,5 +1,4 @@
-#Analisis de ámbito con Jison.
-=========================================================
+# Analisis de ámbito con Jison.
 
 * **Universidad:** La Laguna
 * **Facultad:** ETSII
@@ -34,8 +33,7 @@ Y el repositorio en [Github]()
    sudo apt-get install sqlite3
    sudo apt-get install libsqlite3
 
-#Nota:
-======
+# Nota:
    Por razones de software el equipo está trabajando junto con la misma cuenta.
 
-# Fecha: 10/04/2014
+Fecha: 02/05/2014

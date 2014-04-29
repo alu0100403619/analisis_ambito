@@ -137,12 +137,46 @@ case 10:
              this.$ = this.$.concat($$[$0]);
        
 break;
+case 15:
+         this.$ = [$$[$0-2]]
+         if ($$[$0-1] && $$[$0-1].length > 0)
+             this.$ = this.$.concat($$[$0-1]);
+      
+break;
 case 16:this.$ = {
           type: $$[$0-1],
           name: $$[$0-2],
+          right: $$[$0],
           value: $$[$0].value
         };
       
+break;
+case 17:
+         if (!symbol_table[$$[$0-1]])
+            throw new Error("Don't exist the procedure or function"+$$[$0-1]);
+         this.$ = {
+           type: $$[$0-2],
+           name: $$[$0-1],
+           arg: $$[$0],
+           value: symbol_table[$$[$0-1]]
+         };
+      
+break;
+case 18:
+         sl = [$$[$0-2]];
+         if ($$[$0-1] && $$[$0-1].length > 0)
+             sl = sl.concat($$[$0-1]);
+         this.$ = {
+            type: $$[$0-3],
+            statement_list: sl
+         };
+      
+break;
+case 22:
+          this.$ = [$$[$0-1]];
+          if ($$[$0] && $$[$0].length > 0)
+             this.$ = this.$.concat($$[$0]);
+       
 break;
 case 25:return yytext;
 break;
@@ -157,7 +191,9 @@ break;
 case 30:return yytext;
 break;
 case 31:
-         symbol_table[$$[$0-2]] = this.$.value = $$[$0].value;
+         //No reasigna el valor del simbolo en la tabla de simbolos
+         //symbol_table[$$[$0-2]] = this.$.value = $$[$0].value;
+         symbol_table[$$[$0-2]] = $$[$0].value;
          this.$ = {
             type: $$[$0-1],
             left: $$[$0-2],
@@ -168,12 +204,14 @@ case 31:
 break;
 case 32: this.$ = {
                       type: 'NUMBER',
-                      value: parseInt($$[$0]) 
+                      //value: parseInt(yytext) 
+                      value: Number(yytext) 
                     };
              
 break;
 case 33:
-         symbol_table[$$[$0-2]] = this.$.value = $$[$0].value;
+       //symbol_table[$$[$0-2]] = this.$.value = $$[$0].value;
+         symbol_table[$$[$0-2]] = $$[$0].value;
          this.$ = {
             type: $$[$0-1],
             left: $$[$0-2],
@@ -195,9 +233,66 @@ case 36:
          };
       
 break;
+case 37:
+         this.$ = {
+            type: $$[$0-1],
+            left: $$[$0-2],
+            right: $$[$0],
+            value: $$[$0-2].value - $$[$0].value
+         };
+      
+break;
+case 38:
+         this.$ = {
+            type: $$[$0-1],
+            left: $$[$0-2],
+            right: $$[$0],
+            value: $$[$0-2].value * $$[$0].value
+         };
+      
+break;
+case 39:
+         if ($$[$0].value == 0) throw new Error("Division by zero, error!");
+         this.$ = {
+            type: $$[$0-1],
+            left: $$[$0-2],
+            right: $$[$0],
+            value: $$[$0-2].value / $$[$0].value
+         };
+      
+break;
+case 40:
+         this.$ = {
+            type: $$[$0-1],
+            left: $$[$0-2],
+            right: $$[$0],
+            value: Math.pow($$[$0-2].value, $$[$0].value)
+         };
+      
+break;
+case 41:
+         if ($$[$0-1].value % 1 !== 0) 
+              throw "Error! Attempt to compute the factorial of "+
+                    "a floating point number "+$$[$0-1];
+         this.$ = {
+            type: $$[$0],
+            left: $$[$0-1],
+            value: fact($$[$0-1].value)
+         };
+      
+break;
+case 42:
+         this.$ = {
+            type: $$[$0],
+            left: $$[$0-1],
+            right: $$[$01],
+            value: $$[$0-1].value/100
+         };
+      
+break;
 case 43:this.$ = {
             type: 'MINUS',
-            value: -$$[$0]
+            value: -$$[$0].value
          };
 break;
 case 44:this.$ = $$[$0-1];

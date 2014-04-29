@@ -140,6 +140,11 @@ decl_proc
 arguments
     : /*empty*/
     | '(' ID varlist ')'
+      {
+         $$ = [$2]
+         if ($3 && $3.length > 0)
+             $$ = $$.concat($3);
+      }
     ;
     
 statement
@@ -147,11 +152,31 @@ statement
        {$$ = {
           type: $2,
           name: $1,
+          right: $3,
           value: $3.value
         };
       }
     | CALL ID arguments
+      {
+         if (!symbol_table[$2])
+            throw new Error("Don't exist the procedure or function "+$2);
+         $$ = {
+           type: $1,
+           name: $2,
+           arg: $3,
+           value: symbol_table[$2]
+         };
+      }
     | BEGIN statement statementlist END
+      {
+         sl = [$2];
+         if ($3 && $3.length > 0)
+             sl = sl.concat($3);
+         $$ = {
+            type: $1,
+            statement_list: sl
+         };
+      }
     | IF condition THEN statement
     | WHILE condition DO statement
     ;
@@ -159,6 +184,11 @@ statement
 statementlist
     : /*empty*/
     | ';' statement statementlist
+       {
+          $$ = [$2];
+          if ($3 && $3.length > 0)
+             $$ = $$.concat($3);
+       }
     ;
 
 condition
@@ -178,7 +208,9 @@ comparisson
 assignment
     : ID '=' number
       {
-         symbol_table[$1] = $$.value = $3.value;
+         //No reasigna el valor del simbolo en la tabla de simbolos
+         //symbol_table[$1] = $$.value = $3.value;
+         symbol_table[$1] = $3.value;
          $$ = {
             type: $2,
             left: $1,
@@ -191,16 +223,18 @@ assignment
 number
     : NUMBER { $$ = {
                       type: 'NUMBER',
-                      value: parseInt($1) 
+                      //value: parseInt(yytext) 
+                      value: Number(yytext) 
                     };
              }
     ;
     
 expression
     : ID '=' expression
-//         { symbol_table[$1] = $$ = $3; }        
+         //{ symbol_table[$1] = $$ = $3; }        
       {
-         symbol_table[$1] = $$.value = $3.value;
+       //symbol_table[$1] = $$.value = $3.value;
+         symbol_table[$1] = $3.value;
          $$ = {
             type: $2,
             left: $1,
@@ -224,28 +258,69 @@ expression
       }
     | expression '-' expression
 //         {$$ = $1-$3;}
+      {
+         $$ = {
+            type: $2,
+            left: $1,
+            right: $3,
+            value: $1.value - $3.value
+         };
+      }
     | expression '*' expression
 //         {$$ = $1*$3;}
+      {
+         $$ = {
+            type: $2,
+            left: $1,
+            right: $3,
+            value: $1.value * $3.value
+         };
+      }
     | expression '/' expression
-//         {
-//           if ($3 == 0) throw new Error("Division by zero, error!");
-//           $$ = $1/$3;
-//         }
+      {
+         if ($3.value == 0) throw new Error("Division by zero, error!");
+         $$ = {
+            type: $2,
+            left: $1,
+            right: $3,
+            value: $1.value / $3.value
+         };
+      }
     | expression '^' expression
 //         {$$ = Math.pow($1, $3);}
+      {
+         $$ = {
+            type: $2,
+            left: $1,
+            right: $3,
+            value: Math.pow($1.value, $3.value)
+         };
+      }
     | expression '!'
-//         {
-//           if ($1 % 1 !== 0) 
-//              throw "Error! Attempt to compute the factorial of "+
-//                    "a floating point number "+$1;
-//           $$ = fact($1);
-//         }
+      {
+         if ($1.value % 1 !== 0) 
+              throw "Error! Attempt to compute the factorial of "+
+                    "a floating point number "+$1;
+         $$ = {
+            type: $2,
+            left: $1,
+            value: fact($1.value)
+         };
+      }
     | expression '%'
 //         {$$ = $1/100;}
+      {
+         $$ = {
+            type: $2,
+            left: $1,
+            right: $3,
+            value: $1.value/100
+         };
+      }
     | '-' expression %prec UMINUS
          {$$ = {
             type: 'MINUS',
-            value: -$2
+            value: -$2.value
          };}
     | '(' expression ')'
          {$$ = $2;}
