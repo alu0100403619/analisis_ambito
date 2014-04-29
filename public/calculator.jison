@@ -106,7 +106,7 @@ arguments
     
 statement
     :  ID '=' expression
-    | CALL ID //Lista de Argumentos ------------------------------------
+    | CALL ID arguments
     | BEGIN statement statementlist END
     | IF condition THEN statement
     | WHILE condition DO statement
