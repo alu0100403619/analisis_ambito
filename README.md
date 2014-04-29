@@ -33,9 +33,9 @@ Y el repositorio en [Github]()
 *Al hacer bundle install dice que no se puede instalar do_sqlit3, la solucion es:
    sudo apt-get install sqlite3
    sudo apt-get install libsqlite3
-   
+
 #Nota:
 ======
    Por razones de software el equipo está trabajando junto con la misma cuenta.
-   
-   Fecha: 10/04/2014
+
+# Fecha: 10/04/2014
