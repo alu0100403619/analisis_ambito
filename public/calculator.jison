@@ -5,6 +5,7 @@
 var symbolTables = [{ name: '', father: null, vars: {} }];
 var scope = 0; 
 var symbolTable = symbolTables[scope];
+var symbol_table = {};
 
 function getScope() {
   return scope;
@@ -60,34 +61,71 @@ program
         }
     ;
 
-/*block
-    : consts
-    | vars
-    | proclists statement
-    ;*/
-
 block
     : consts vars proclists statement
+       {
+          $1 ? c = $1 : c = 'NULL'
+          //if ($1) c = $1;
+          //else c = 'NULL';
+          $2 ? v = $2 : v = 'NULL'
+          $3 ? p = $3 : p = 'NULL'
+          
+           $$ = {
+                type: 'BLOCK',
+                consts: c,
+                vars: v,
+                procs: p,
+                stat: $4
+           };
+       }
     ;
 
 consts
     : /*empty*/
     | CONST assignment constlist ';'
+       {
+          cl = [$2];
+          if ($3 && $3.length > 0)
+             cl = cl.concat($3);
+          $$ = {
+             type: 'CONST',
+             const_list: cl
+          };
+       }
     ;
     
 constlist
     : /*empty*/
     | ',' assignment constlist
+       {
+          $$ = [$2];
+          if ($3 && $3.length > 0)
+             $$ = $$.concat($3);
+       }
     ;
 
 vars
     : /*empty*/
     | VAR ID varlist ';'
+       {
+          vl = [$2];
+          if ($3 && $3.length > 0)
+             vl = vl.concat($3);
+          $$ = {
+             type: 'VAR',
+             var_list: vl
+          };
+       }
     ;
     
 varlist
     : /*empty*/
     | ',' ID varlist
+       {
+          $$ = [$2];
+          if ($3 && $3.length > 0)
+             $$ = $$.concat($3);
+       }
     ;
 
 proclists
@@ -106,6 +144,12 @@ arguments
     
 statement
     :  ID '=' expression
+       {$$ = {
+          type: $2,
+          name: $1,
+          value: $3.value
+        };
+      }
     | CALL ID arguments
     | BEGIN statement statementlist END
     | IF condition THEN statement
@@ -119,52 +163,101 @@ statementlist
 
 condition
     : ODD expression
-    | expression COMPARISSON expression
+    | expression comparisson expression
     ;
 
+comparisson
+    : '==' {return yytext;}
+    | '#' {return yytext;}
+    | '<' {return yytext;}
+    | '>=' {return yytext;}
+    | '>' {return yytext;}
+    | '>=' {return yytext;}
+    ;
+    
 assignment
-    : ID '=' NUMBER
+    : ID '=' number
+      {
+         symbol_table[$1] = $$.value = $3.value;
+         $$ = {
+            type: $2,
+            left: $1,
+            right: $3,
+            //value: $3.value
+         };
+      }
+    ;
+
+number
+    : NUMBER { $$ = {
+                      type: 'NUMBER',
+                      value: parseInt($1) 
+                    };
+             }
     ;
     
 expression
     : ID '=' expression
 //         { symbol_table[$1] = $$ = $3; }        
-     | PI '=' expression 
-//         { throw new Error("Can't assign to constant 'π'"); }
-     | E '=' expression 
-//         { throw new Error("Can't assign to math constant 'e'"); }
-     | expression '+' expression
+      {
+         symbol_table[$1] = $$.value = $3.value;
+         $$ = {
+            type: $2,
+            left: $1,
+            right: $3,
+            value: $3.value
+         };
+      }
+    | PI '=' expression 
+         { throw new Error("Can't assign to constant 'π'"); }
+    | E '=' expression 
+         { throw new Error("Can't assign to math constant 'e'"); }
+    | expression '+' expression
 //         {$$ = $1+$3;}
-     | expression '-' expression
+      {
+         $$ = {
+            type: $2,
+            left: $1,
+            right: $3,
+            value: $1.value + $3.value
+         };
+      }
+    | expression '-' expression
 //         {$$ = $1-$3;}
-     | expression '*' expression
+    | expression '*' expression
 //         {$$ = $1*$3;}
-     | expression '/' expression
+    | expression '/' expression
 //         {
 //           if ($3 == 0) throw new Error("Division by zero, error!");
 //           $$ = $1/$3;
 //         }
-     | expression '^' expression
+    | expression '^' expression
 //         {$$ = Math.pow($1, $3);}
-     | expression '!'
+    | expression '!'
 //         {
 //           if ($1 % 1 !== 0) 
 //              throw "Error! Attempt to compute the factorial of "+
 //                    "a floating point number "+$1;
 //           $$ = fact($1);
 //         }
-     | expression '%'
+    | expression '%'
 //         {$$ = $1/100;}
-     | '-' expression %prec UMINUS
-//         {$$ = -$2;}
-     | '(' expression ')'
-//         {$$ = $2;}
-     | NUMBER
-//         {$$ = Number(yytext);} 
-     | E
-//         {$$ = Math.E;}
-     | PI
-//         {$$ = Math.PI;}        
-     | ID 
+    | '-' expression %prec UMINUS
+         {$$ = {
+            type: 'MINUS',
+            value: -$2
+         };}
+    | '(' expression ')'
+         {$$ = $2;}
+    | number
+         {$$ = $1;} 
+    | E
+         //{$$ = Math.E;}
+         {$$ = {name: $1, value: Math.E};}
+    | PI
+         //{$$ = Math.PI;}
+         {$$ = {name: $1, value: Math.PI};}
+    | ID 
 //         { $$ = symbol_table[yytext] || 0; }        
-     ;
+      {$$ = {name: $1, value: symbol_table[$1]};}
+    ;
