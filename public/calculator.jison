@@ -113,7 +113,7 @@ vars
     | VAR ID varlist ';'
        {
           vl = [$2];
-          symbol_table[$2] = -1;
+          symbol_table[$2] = {type: 'VAR', value: -1};
           if ($3 && $3.length > 0){
              vl = vl.concat($3);
           }
@@ -129,7 +129,7 @@ varlist
     : /*empty*/
     | ',' ID varlist
        {
-          symbol_table[$2] = -1;
+          symbol_table[$2] = {type: 'VAR', value: -1};
           $$ = [$2];
           if ($3 && $3.length > 0){
              $$ = $$.concat($3);
@@ -150,7 +150,7 @@ proclists
             value: $4.value
          };
          $$ = ambito;
-         symbol_table[$1.name] = {arg: ambito.arg, bl: ambito.bl, value: ambito.value};
+         symbol_table[$1.name] = {type: $1.type, arg: ambito.arg, bl: ambito.bl, value: ambito.value};
          getFormerScope();
       }
     ;
@@ -160,7 +160,7 @@ decl_proc
       {
          makeNewScope();
          //throw new Error("ID: "+$2);         
-         symbol_table[$2] = -1
+         symbol_table[$2] ={type: 'PROCEDURE', value: -1}
          $$ = {
             type: $1,
             name: $2,
@@ -182,10 +182,12 @@ arguments
 statement
     :  ID '=' expression
        {
+          if (symbol_table[$1].type == 'CONST')
+             throw new Error("Can't assign to constant " + $1);
           if (!symbol_table[$1])
              throw new Error($1 + " undefined");
           else
-             symbol_table[$1] = $3.value;
+             symbol_table[$1] = {type: $2, value: $3.value};
           $$ = {
             type: $2,
             name: $1,
@@ -203,7 +205,7 @@ statement
            name: $2,
            arg: $3,
            scope: scope,
-           value: symbol_table[$2]
+           value: symbol_table[$2].value
          };
       }
     | BEGIN statement statementlist END
@@ -326,7 +328,7 @@ assignment
       {
          //No reasigna el valor del simbolo en la tabla de simbolos
          //symbol_table[$1] = $$.value = $3.value;
-         symbol_table[$1] = $3.value;
+         symbol_table[$1] = {type: 'CONST',value: $3.value};
          $$ = {
             type: $2,
             left: $1,
@@ -351,8 +353,10 @@ expression
     : ID '=' expression
          //{ symbol_table[$1] = $$ = $3; }        
       {
+         if (symbol_table[$1].type == 'CONST')
+             throw new Error("Can't assign to constant " + $1);
        //symbol_table[$1] = $$.value = $3.value;
-       symbol_table[$1] = $3.value;
+       symbol_table[$1] = {type: $2, value: $3.value};
          $$ = {
             type: $2,
             left: $1,
@@ -461,5 +465,5 @@ expression
          {$$ = {name: $1, scope: scope, value: Math.PI};}
     | ID 
 //         { $$ = symbol_table[yytext] || 0; }        
-      {$$ = {name: $1, scope: scope, value: symbol_table[yytext] || 0};}
+      {$$ = {name: $1, scope: scope, value: symbol_table[yytext].value || 0};}
     ;

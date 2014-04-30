@@ -125,7 +125,7 @@ case 6:
 break;
 case 8:
           vl = [$$[$0-2]];
-          symbol_table[$$[$0-2]] = 0.0;
+          symbol_table[$$[$0-2]] = {type: 'VAR', value: -1};
           if ($$[$0-1] && $$[$0-1].length > 0){
              vl = vl.concat($$[$0-1]);
           }
@@ -137,7 +137,7 @@ case 8:
        
 break;
 case 10:
-          symbol_table[$$[$0-1]] = 0.0;
+          symbol_table[$$[$0-1]] = {type: 'VAR', value: -1};
           this.$ = [$$[$0-1]];
           if ($$[$0] && $$[$0].length > 0){
              this.$ = this.$.concat($$[$0]);
@@ -154,14 +154,14 @@ case 12:
             value: $$[$0-2].value
          };
          this.$ = ambito;
-         symbol_table[$$[$0-5].name] = {arg: ambito.arg, bl: ambito.bl, value: ambito.value};
+         symbol_table[$$[$0-5].name] = {type: $$[$0-5].type, arg: ambito.arg, bl: ambito.bl, value: ambito.value};
          getFormerScope();
       
 break;
 case 13:
          makeNewScope();
          //throw new Error("ID: "+$$[$0]);         
-         symbol_table[$$[$0]] = -1
+         symbol_table[$$[$0]] ={type: 'PROCEDURE', value: -1}
          this.$ = {
             type: $$[$0-1],
             name: $$[$0],
@@ -176,10 +176,12 @@ case 15:
       
 break;
 case 16:
+          if (symbol_table[$$[$0-2]].type == 'CONST')
+             throw new Error("Can't assign to constant " + $$[$0-2]);
           if (!symbol_table[$$[$0-2]])
              throw new Error($$[$0-2] + " undefined");
           else
-             symbol_table[$$[$0-2]] = $$[$0].value;
+             symbol_table[$$[$0-2]] = {type: $$[$0-1], value: $$[$0].value};
           this.$ = {
             type: $$[$0-1],
             name: $$[$0-2],
@@ -197,7 +199,7 @@ case 17:
            name: $$[$0-1],
            arg: $$[$0],
            scope: scope,
-           value: symbol_table[$$[$0-1]]
+           value: symbol_table[$$[$0-1]].value
          };
       
 break;
@@ -310,7 +312,7 @@ break;
 case 30:
          //No reasigna el valor del simbolo en la tabla de simbolos
          //symbol_table[$$[$0-2]] = this.$.value = $$[$0].value;
-         symbol_table[$$[$0-2]] = $$[$0].value;
+         symbol_table[$$[$0-2]] = {type: 'CONST',value: $$[$0].value};
          this.$ = {
             type: $$[$0-1],
             left: $$[$0-2],
@@ -329,8 +331,10 @@ case 31: this.$ = {
              
 break;
 case 32:
+         if (symbol_table[$$[$0-2]].type == 'CONST')
+             throw new Error("Can't assign to constant " + $$[$0-2]);
        //symbol_table[$$[$0-2]] = this.$.value = $$[$0].value;
-       symbol_table[$$[$0-2]] = $$[$0].value;
+       symbol_table[$$[$0-2]] = {type: $$[$0-1], value: $$[$0].value};
          this.$ = {
             type: $$[$0-1],
             left: $$[$0-2],
@@ -431,7 +435,7 @@ case 45:this.$ = {name: $$[$0], scope: scope, value: Math.E};
 break;
 case 46:this.$ = {name: $$[$0], scope: scope, value: Math.PI};
 break;
-case 47:this.$ = {name: $$[$0], scope: scope, value: symbol_table[yytext] || 0};
+case 47:this.$ = {name: $$[$0], scope: scope, value: symbol_table[yytext].value || 0};
 break;
 }
 },
