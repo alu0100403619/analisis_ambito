@@ -6,6 +6,7 @@
 var scope = 0; 
 //var symbolTable = symbolTables[scope];
 var symbol_table = {};
+var ambito = {};
 
 function getScope() {
   return scope;
@@ -112,6 +113,7 @@ vars
     | VAR ID varlist ';'
        {
           vl = [$2];
+          symbol_table[$2] = -1;
           if ($3 && $3.length > 0){
              vl = vl.concat($3);
           }
@@ -127,6 +129,7 @@ varlist
     : /*empty*/
     | ',' ID varlist
        {
+          symbol_table[$2] = -1;
           $$ = [$2];
           if ($3 && $3.length > 0){
              $$ = $$.concat($3);
@@ -138,8 +141,7 @@ proclists
     : /*empty*/
     | decl_proc arguments ';' block ';' proclists
       {
-         //symbol_table[$1.name] = $4.value;
-         $$ = {
+         ambito = {
             type: $1.type,
             name: $1.name,
             arg: $2,
@@ -147,6 +149,8 @@ proclists
             scope: $1.scope,
             value: $4.value
          };
+         $$ = ambito;
+         symbol_table[$1.name] = {arg: ambito.arg, bl: ambito.bl, value: ambito.value};
          getFormerScope();
       }
     ;
@@ -178,7 +182,10 @@ arguments
 statement
     :  ID '=' expression
        {
-          symbol_table[$1] = $3.value;
+          if (!symbol_table[$1])
+             throw new Error($1 + " undefined");
+          else
+             symbol_table[$1] = $3.value;
           $$ = {
             type: $2,
             name: $1,

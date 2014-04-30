@@ -125,6 +125,7 @@ case 6:
 break;
 case 8:
           vl = [$$[$0-2]];
+          symbol_table[$$[$0-2]] = 0.0;
           if ($$[$0-1] && $$[$0-1].length > 0){
              vl = vl.concat($$[$0-1]);
           }
@@ -136,6 +137,7 @@ case 8:
        
 break;
 case 10:
+          symbol_table[$$[$0-1]] = 0.0;
           this.$ = [$$[$0-1]];
           if ($$[$0] && $$[$0].length > 0){
              this.$ = this.$.concat($$[$0]);
@@ -143,8 +145,7 @@ case 10:
        
 break;
 case 12:
-         //symbol_table[$$[$0-5].name] = $$[$0-2].value;
-         this.$ = {
+         ambito = {
             type: $$[$0-5].type,
             name: $$[$0-5].name,
             arg: $$[$0-4],
@@ -152,6 +153,8 @@ case 12:
             scope: $$[$0-5].scope,
             value: $$[$0-2].value
          };
+         this.$ = ambito;
+         symbol_table[$$[$0-5].name] = {arg: ambito.arg, bl: ambito.bl, value: ambito.value};
          getFormerScope();
       
 break;
@@ -173,7 +176,10 @@ case 15:
       
 break;
 case 16:
-          symbol_table[$$[$0-2]] = $$[$0].value;
+          if (!symbol_table[$$[$0-2]])
+             throw new Error($$[$0-2] + " undefined");
+          else
+             symbol_table[$$[$0-2]] = $$[$0].value;
           this.$ = {
             type: $$[$0-1],
             name: $$[$0-2],
@@ -574,6 +580,7 @@ parse: function parse(input) {
 var scope = 0; 
 //var symbolTable = symbolTables[scope];
 var symbol_table = {};
+var ambito = {};
 
 function getScope() {
   return scope;
