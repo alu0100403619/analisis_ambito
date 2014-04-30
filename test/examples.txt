@@ -32,11 +32,22 @@ while b < 5 do b = b+1;
 c = b+1
 end.
 
+
+const a = 7; 
+var b; 
+procedure squ; 
+begin 
+ x = x*x 
+end; 
+begin 
+x = 1 
+end. 
+
 const a = 7;
 var b;
 procedure squ;
 begin
- x = x*x;
+ x = x*x
 end;
 begin
 x = 1;

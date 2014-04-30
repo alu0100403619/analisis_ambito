@@ -101,7 +101,8 @@ case 2:
                 consts: c,
                 vars: v,
                 procs: p,
-                stat: $$[$0]
+                stat: $$[$0],
+                scope: scope
            };
        
 break;
@@ -111,7 +112,8 @@ case 4:
              cl = cl.concat($$[$0-1]);
           this.$ = {
              type: 'CONST',
-             const_list: cl
+             const_list: cl,
+             scope: scope
           };
        
 break;
@@ -128,7 +130,8 @@ case 8:
           }
           this.$ = {
              type: 'VAR',
-             var_list: vl
+             var_list: vl,
+             scope: scope
           };
        
 break;
@@ -140,21 +143,26 @@ case 10:
        
 break;
 case 12:
-         symbol_table[$$[$0-5].name] = $$[$0-2].value;
+         //symbol_table[$$[$0-5].name] = $$[$0-2].value;
          this.$ = {
             type: $$[$0-5].type,
             name: $$[$0-5].name,
             arg: $$[$0-4],
             bl: $$[$0-2],
+            scope: $$[$0-5].scope,
             value: $$[$0-2].value
          };
+         getFormerScope();
       
 break;
 case 13:
-         symbol_table[$$[$0]] = 0 //??????????????????
+         makeNewScope();
+         //throw new Error("ID: "+$$[$0]);         
+         symbol_table[$$[$0]] = -1
          this.$ = {
             type: $$[$0-1],
-            name: $$[$0]
+            name: $$[$0],
+            scope: scope
          };
       
 break;
@@ -170,6 +178,7 @@ case 16:
             type: $$[$0-1],
             name: $$[$0-2],
             right: $$[$0],
+            scope: scope,
             value: $$[$0].value
         };
       
@@ -181,6 +190,7 @@ case 17:
            type: $$[$0-2],
            name: $$[$0-1],
            arg: $$[$0],
+           scope: scope,
            value: symbol_table[$$[$0-1]]
          };
       
@@ -201,6 +211,7 @@ case 19:
             cond: $$[$0-2],
             //st: $$[$0],
             st: ($$[$0-2].value == 1) ? $$[$0] : 'NULL',
+            scope: scope,
             value: ($$[$0-2].value == 1) ? $$[$0].value : 0
          };
       
@@ -210,6 +221,7 @@ case 20:
             type: $$[$0-3],
             cond: $$[$0-2],
             st: ($$[$0-2].value == 1) ? $$[$0] : 'NULL',
+            scope: scope,
             value: ($$[$0-2].value == 1) ? $$[$0].value : 0
          };
       
@@ -224,6 +236,7 @@ case 23:
          this.$ = {
             type: $$[$0-1],
             right: $$[$0],
+            scope: scope,
             value: odd($$[$0].value)
          };
       
@@ -233,6 +246,7 @@ case 24:
             type: 'COMPARISSON ==',
             left: $$[$0-2],
             right: $$[$0],
+            scope: scope,
             value: ($$[$0-2].value == $$[$0].value) ? 1 : 0
          };
       
@@ -242,6 +256,7 @@ case 25:
             type: 'COMPARISSON #',
             left: $$[$0-2],
             right: $$[$0],
+            scope: scope,
             value: ($$[$0-2].value != $$[$0].value) ? 1 : 0
          };
       
@@ -251,6 +266,7 @@ case 26:
             type: 'COMPARISSON <',
             left: $$[$0-2],
             right: $$[$0],
+            scope: scope,
             value: ($$[$0-2].value < $$[$0].value) ? 1 : 0
          };
       
@@ -260,6 +276,7 @@ case 27:
             type: 'COMPARISSON <=',
             left: $$[$0-2],
             right: $$[$0],
+            scope: scope,
             value: ($$[$0-2].value <= $$[$0].value) ? 1 : 0
          };
       
@@ -269,6 +286,7 @@ case 28:
             type: 'COMPARISSON >',
             left: $$[$0-2],
             right: $$[$0],
+            scope: scope,
             value: ($$[$0-2].value > $$[$0].value) ? 1 : 0
          };
       
@@ -278,6 +296,7 @@ case 29:
             type: 'COMPARISSON >=',
             left: $$[$0-2],
             right: $$[$0],
+            scope: scope,
             value: ($$[$0-2].value >= $$[$0].value) ? 1 : 0
          };
       
@@ -290,6 +309,7 @@ case 30:
             type: $$[$0-1],
             left: $$[$0-2],
             right: $$[$0],
+            scope: scope
             //value: $$[$0].value
          };
       
@@ -297,7 +317,8 @@ break;
 case 31: this.$ = {
                       type: 'NUMBER',
                       //value: parseInt(yytext) 
-                      value: Number(yytext) 
+                      scope: scope,
+                      value: Number(yytext)
                     };
              
 break;
@@ -308,6 +329,7 @@ case 32:
             type: $$[$0-1],
             left: $$[$0-2],
             right: $$[$0],
+            scope: scope,
             value: $$[$0].value
          };
       
@@ -321,6 +343,7 @@ case 35:
             type: $$[$0-1],
             left: $$[$0-2],
             right: $$[$0],
+            scope: scope,
             value: $$[$0-2].value + $$[$0].value
          };
       
@@ -330,6 +353,7 @@ case 36:
             type: $$[$0-1],
             left: $$[$0-2],
             right: $$[$0],
+            scope: scope,
             value: $$[$0-2].value - $$[$0].value
          };
       
@@ -339,6 +363,7 @@ case 37:
             type: $$[$0-1],
             left: $$[$0-2],
             right: $$[$0],
+            scope: scope,
             value: $$[$0-2].value * $$[$0].value
          };
       
@@ -349,6 +374,7 @@ case 38:
             type: $$[$0-1],
             left: $$[$0-2],
             right: $$[$0],
+            scope: scope,
             value: $$[$0-2].value / $$[$0].value
          };
       
@@ -358,6 +384,7 @@ case 39:
             type: $$[$0-1],
             left: $$[$0-2],
             right: $$[$0],
+            scope: scope,
             value: Math.pow($$[$0-2].value, $$[$0].value)
          };
       
@@ -369,6 +396,7 @@ case 40:
          this.$ = {
             type: $$[$0],
             left: $$[$0-1],
+            scope: scope,
             value: fact($$[$0-1].value)
          };
       
@@ -378,12 +406,14 @@ case 41:
             type: $$[$0],
             left: $$[$0-1],
             right: $$[$01],
+            scope: scope,
             value: $$[$0-1].value/100
          };
       
 break;
 case 42:this.$ = {
             type: 'MINUS',
+            scope: scope,
             value: -$$[$0].value
          };
 break;
@@ -391,11 +421,11 @@ case 43:this.$ = $$[$0-1];
 break;
 case 44:this.$ = $$[$0];
 break;
-case 45:this.$ = {name: $$[$0], value: Math.E};
+case 45:this.$ = {name: $$[$0], scope: scope, value: Math.E};
 break;
-case 46:this.$ = {name: $$[$0], value: Math.PI};
+case 46:this.$ = {name: $$[$0], scope: scope, value: Math.PI};
 break;
-case 47:this.$ = {name: $$[$0], value: symbol_table[yytext] || 0};
+case 47:this.$ = {name: $$[$0], scope: scope, value: symbol_table[yytext] || 0};
 break;
 }
 },
@@ -540,9 +570,9 @@ parse: function parse(input) {
 }};
 
 
-var symbolTables = [{ name: '', father: null, vars: {} }];
+//var symbolTables = [{ name: '', father: null, vars: {} }];
 var scope = 0; 
-var symbolTable = symbolTables[scope];
+//var symbolTable = symbolTables[scope];
 var symbol_table = {};
 
 function getScope() {
@@ -551,14 +581,14 @@ function getScope() {
 
 function getFormerScope() {
    scope--;
-   symbolTable = symbolTables[scope];
+   //symbolTable = symbolTables[scope];
 }
 
-function makeNewScope(id) {
+function makeNewScope(/*id*/) {
    scope++;
-   symbolTable.vars[id].symbolTable = symbolTables[scope] =  { name: id, father: symbolTable, vars: {} };
-   symbolTable = symbolTables[scope];
-   return symbolTable;
+   //symbolTable.vars[id].symbolTable = symbolTables[scope] =  { name: id, father: symbolTable, vars: {} };
+   //symbolTable = symbolTables[scope];
+   //return symbolTable;
 }
 
 function fact (n){ 

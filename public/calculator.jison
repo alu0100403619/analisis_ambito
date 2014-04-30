@@ -2,9 +2,9 @@
 
 %{
 
-var symbolTables = [{ name: '', father: null, vars: {} }];
+//var symbolTables = [{ name: '', father: null, vars: {} }];
 var scope = 0; 
-var symbolTable = symbolTables[scope];
+//var symbolTable = symbolTables[scope];
 var symbol_table = {};
 
 function getScope() {
@@ -13,14 +13,14 @@ function getScope() {
 
 function getFormerScope() {
    scope--;
-   symbolTable = symbolTables[scope];
+   //symbolTable = symbolTables[scope];
 }
 
-function makeNewScope(id) {
+function makeNewScope(/*id*/) {
    scope++;
-   symbolTable.vars[id].symbolTable = symbolTables[scope] =  { name: id, father: symbolTable, vars: {} };
-   symbolTable = symbolTables[scope];
-   return symbolTable;
+   //symbolTable.vars[id].symbolTable = symbolTables[scope] =  { name: id, father: symbolTable, vars: {} };
+   //symbolTable = symbolTables[scope];
+   //return symbolTable;
 }
 
 function fact (n){ 
@@ -38,6 +38,7 @@ function odd (n) {
 
 /* operator associations and precedence */
 %right '='
+%left '<=' '>=' '==' '!=' '<' '>' 
 %left '+' '-'
 %left '*' '/'
 %left '^'
@@ -75,7 +76,8 @@ block
                 consts: c,
                 vars: v,
                 procs: p,
-                stat: $4
+                stat: $4,
+                scope: scope
            };
        }
     ;
@@ -89,7 +91,8 @@ consts
              cl = cl.concat($3);
           $$ = {
              type: 'CONST',
-             const_list: cl
+             const_list: cl,
+             scope: scope
           };
        }
     ;
@@ -114,7 +117,8 @@ vars
           }
           $$ = {
              type: 'VAR',
-             var_list: vl
+             var_list: vl,
+             scope: scope
           };
        }
     ;
@@ -134,24 +138,29 @@ proclists
     : /*empty*/
     | decl_proc arguments ';' block ';' proclists
       {
-         symbol_table[$1.name] = $4.value;
+         //symbol_table[$1.name] = $4.value;
          $$ = {
             type: $1.type,
             name: $1.name,
             arg: $2,
             bl: $4,
+            scope: $1.scope,
             value: $4.value
          };
+         getFormerScope();
       }
     ;
 
 decl_proc
     : PROCEDURE ID //makeNewScope
       {
-         symbol_table[$2] = 0 //??????????????????
+         makeNewScope();
+         //throw new Error("ID: "+$2);         
+         symbol_table[$2] = -1
          $$ = {
             type: $1,
-            name: $2
+            name: $2,
+            scope: scope
          };
       }
     ;
@@ -174,6 +183,7 @@ statement
             type: $2,
             name: $1,
             right: $3,
+            scope: scope,
             value: $3.value
         };
       }
@@ -185,6 +195,7 @@ statement
            type: $1,
            name: $2,
            arg: $3,
+           scope: scope,
            value: symbol_table[$2]
          };
       }
@@ -205,6 +216,7 @@ statement
             cond: $2,
             //st: $4,
             st: ($2.value == 1) ? $4 : 'NULL',
+            scope: scope,
             value: ($2.value == 1) ? $4.value : 0
          };
       }
@@ -214,6 +226,7 @@ statement
             type: $1,
             cond: $2,
             st: ($2.value == 1) ? $4 : 'NULL',
+            scope: scope,
             value: ($2.value == 1) ? $4.value : 0
          };
       }
@@ -235,6 +248,7 @@ condition
          $$ = {
             type: $1,
             right: $2,
+            scope: scope,
             value: odd($2.value)
          };
       }
@@ -244,6 +258,7 @@ condition
             type: 'COMPARISSON ==',
             left: $1,
             right: $3,
+            scope: scope,
             value: ($1.value == $3.value) ? 1 : 0
          };
       }
@@ -253,6 +268,7 @@ condition
             type: 'COMPARISSON #',
             left: $1,
             right: $3,
+            scope: scope,
             value: ($1.value != $3.value) ? 1 : 0
          };
       }
@@ -262,6 +278,7 @@ condition
             type: 'COMPARISSON <',
             left: $1,
             right: $3,
+            scope: scope,
             value: ($1.value < $3.value) ? 1 : 0
          };
       }
@@ -271,6 +288,7 @@ condition
             type: 'COMPARISSON <=',
             left: $1,
             right: $3,
+            scope: scope,
             value: ($1.value <= $3.value) ? 1 : 0
          };
       }
@@ -280,6 +298,7 @@ condition
             type: 'COMPARISSON >',
             left: $1,
             right: $3,
+            scope: scope,
             value: ($1.value > $3.value) ? 1 : 0
          };
       }
@@ -289,6 +308,7 @@ condition
             type: 'COMPARISSON >=',
             left: $1,
             right: $3,
+            scope: scope,
             value: ($1.value >= $3.value) ? 1 : 0
          };
       }
@@ -304,6 +324,7 @@ assignment
             type: $2,
             left: $1,
             right: $3,
+            scope: scope
             //value: $3.value
          };
       }
@@ -313,7 +334,8 @@ number
     : NUMBER { $$ = {
                       type: 'NUMBER',
                       //value: parseInt(yytext) 
-                      value: Number(yytext) 
+                      scope: scope,
+                      value: Number(yytext)
                     };
              }
     ;
@@ -328,6 +350,7 @@ expression
             type: $2,
             left: $1,
             right: $3,
+            scope: scope,
             value: $3.value
          };
       }
@@ -342,6 +365,7 @@ expression
             type: $2,
             left: $1,
             right: $3,
+            scope: scope,
             value: $1.value + $3.value
          };
       }
@@ -352,6 +376,7 @@ expression
             type: $2,
             left: $1,
             right: $3,
+            scope: scope,
             value: $1.value - $3.value
          };
       }
@@ -362,6 +387,7 @@ expression
             type: $2,
             left: $1,
             right: $3,
+            scope: scope,
             value: $1.value * $3.value
          };
       }
@@ -372,6 +398,7 @@ expression
             type: $2,
             left: $1,
             right: $3,
+            scope: scope,
             value: $1.value / $3.value
          };
       }
@@ -382,6 +409,7 @@ expression
             type: $2,
             left: $1,
             right: $3,
+            scope: scope,
             value: Math.pow($1.value, $3.value)
          };
       }
@@ -393,6 +421,7 @@ expression
          $$ = {
             type: $2,
             left: $1,
+            scope: scope,
             value: fact($1.value)
          };
       }
@@ -403,12 +432,14 @@ expression
             type: $2,
             left: $1,
             right: $3,
+            scope: scope,
             value: $1.value/100
          };
       }
     | '-' expression %prec UMINUS
          {$$ = {
             type: 'MINUS',
+            scope: scope,
             value: -$2.value
          };}
     | '(' expression ')'
@@ -417,11 +448,11 @@ expression
          {$$ = $1;} 
     | E
          //{$$ = Math.E;}
-         {$$ = {name: $1, value: Math.E};}
+         {$$ = {name: $1, scope: scope, value: Math.E};}
     | PI
          //{$$ = Math.PI;}
-         {$$ = {name: $1, value: Math.PI};}
+         {$$ = {name: $1, scope: scope, value: Math.PI};}
     | ID 
 //         { $$ = symbol_table[yytext] || 0; }        
-      {$$ = {name: $1, value: symbol_table[yytext] || 0};}
+      {$$ = {name: $1, scope: scope, value: symbol_table[yytext] || 0};}
     ;
