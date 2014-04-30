@@ -109,8 +109,9 @@ vars
     | VAR ID varlist ';'
        {
           vl = [$2];
-          if ($3 && $3.length > 0)
+          if ($3 && $3.length > 0){
              vl = vl.concat($3);
+          }
           $$ = {
              type: 'VAR',
              var_list: vl
@@ -123,18 +124,36 @@ varlist
     | ',' ID varlist
        {
           $$ = [$2];
-          if ($3 && $3.length > 0)
+          if ($3 && $3.length > 0){
              $$ = $$.concat($3);
+          }
        }
     ;
 
 proclists
     : /*empty*/
     | decl_proc arguments ';' block ';' proclists
+      {
+         symbol_table[$1.name] = $4.value;
+         $$ = {
+            type: $1.type,
+            name: $1.name,
+            arg: $2,
+            bl: $4,
+            value: $4.value
+         };
+      }
     ;
 
 decl_proc
     : PROCEDURE ID //makeNewScope
+      {
+         symbol_table[$2] = 0 //??????????????????
+         $$ = {
+            type: $1,
+            name: $2
+         };
+      }
     ;
     
 arguments
@@ -149,11 +168,13 @@ arguments
     
 statement
     :  ID '=' expression
-       {$$ = {
-          type: $2,
-          name: $1,
-          right: $3,
-          value: $3.value
+       {
+          symbol_table[$1] = $3.value;
+          $$ = {
+            type: $2,
+            name: $1,
+            right: $3,
+            value: $3.value
         };
       }
     | CALL ID arguments
@@ -178,7 +199,24 @@ statement
          };
       }
     | IF condition THEN statement
+      {
+         $$ = {
+            type: $1,
+            cond: $2,
+            //st: $4,
+            st: ($2.value == 1) ? $4 : 'NULL',
+            value: ($2.value == 1) ? $4.value : 0
+         };
+      }
     | WHILE condition DO statement
+      {
+         $$ = {
+            type: $1,
+            cond: $2,
+            st: ($2.value == 1) ? $4 : 'NULL',
+            value: ($2.value == 1) ? $4.value : 0
+         };
+      }
     ;
     
 statementlist
@@ -193,16 +231,67 @@ statementlist
 
 condition
     : ODD expression
-    | expression comparisson expression
-    ;
-
-comparisson
-    : '==' {return yytext;}
-    | '#' {return yytext;}
-    | '<' {return yytext;}
-    | '>=' {return yytext;}
-    | '>' {return yytext;}
-    | '>=' {return yytext;}
+      {
+         $$ = {
+            type: $1,
+            right: $2,
+            value: odd($2.value)
+         };
+      }
+    | expression '==' expression
+      {
+         $$ = {
+            type: 'COMPARISSON ==',
+            left: $1,
+            right: $3,
+            value: ($1.value == $3.value) ? 1 : 0
+         };
+      }
+    | expression '#' expression
+      {
+         $$ = {
+            type: 'COMPARISSON #',
+            left: $1,
+            right: $3,
+            value: ($1.value != $3.value) ? 1 : 0
+         };
+      }
+    | expression '<' expression
+      {
+         $$ = {
+            type: 'COMPARISSON <',
+            left: $1,
+            right: $3,
+            value: ($1.value < $3.value) ? 1 : 0
+         };
+      }
+    | expression '<=' expression
+      {
+         $$ = {
+            type: 'COMPARISSON <=',
+            left: $1,
+            right: $3,
+            value: ($1.value <= $3.value) ? 1 : 0
+         };
+      }
+    | expression '>' expression
+      {
+         $$ = {
+            type: 'COMPARISSON >',
+            left: $1,
+            right: $3,
+            value: ($1.value > $3.value) ? 1 : 0
+         };
+      }
+    | expression '>=' expression
+      {
+         $$ = {
+            type: 'COMPARISSON >=',
+            left: $1,
+            right: $3,
+            value: ($1.value >= $3.value) ? 1 : 0
+         };
+      }
     ;
     
 assignment
@@ -234,7 +323,7 @@ expression
          //{ symbol_table[$1] = $$ = $3; }        
       {
        //symbol_table[$1] = $$.value = $3.value;
-         symbol_table[$1] = $3.value;
+       symbol_table[$1] = $3.value;
          $$ = {
             type: $2,
             left: $1,
@@ -334,5 +423,5 @@ expression
          {$$ = {name: $1, value: Math.PI};}
     | ID 
 //         { $$ = symbol_table[yytext] || 0; }        
-      {$$ = {name: $1, value: symbol_table[$1]};}
+      {$$ = {name: $1, value: symbol_table[yytext] || 0};}
     ;

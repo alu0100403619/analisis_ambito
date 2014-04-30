@@ -1,0 +1,44 @@
+const a = 7;
+var b;
+begin
+b = a+3;
+c = b+5
+end.
+
+
+const a = 7;
+var b;
+begin
+b = a+4;
+if odd b then c = b+5;
+c = b+1
+end.
+
+
+const a = 7;
+var b;
+begin
+b = a+4;
+if b<a then c = b+5;
+c = b+1
+end.
+
+
+const a = 7;
+var b;
+begin
+b = 1;
+while b < 5 do b = b+1;
+c = b+1
+end.
+
+const a = 7;
+var b;
+procedure squ;
+begin
+ x = x*x;
+end;
+begin
+x = 1;
+call squ
+end.
