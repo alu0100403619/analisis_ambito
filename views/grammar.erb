@@ -7,56 +7,88 @@
 </script>
 
 <br>
-Recuerde que una gramática $G$ es una cuaterna $G =(\Sigma,V,P,S)$.
-<ol>
-  <li>$\Sigma$ es el conjunto de terminales. 
-  <li>$V$ es un conjunto (disjunto de $\Sigma$) que se denomina conjunto de <i>variables sintácticas</i> o <i>categorías gramáticales</i>,
-  <li>$P$ es un conjunto de pares de $V \times (V \cup \Sigma )^*$. En vez de escribir
-  un par usando la notación $(A, \alpha) \in P$ se escribe $A \rightarrow \alpha$.
-  Un elemento de $P$ se denomina producción. 
-  <li>Por último, $S$ es un símbolo del conjunto
-  $V$ que se denomina símbolo de arranque.
-</ol>
-<ol>
-  <li> $\Sigma = \{ ; =, ID, PI, E, +, -, *, /, \text{^}, !, \%, (, ), NUMBER \}$, 
-  <li> $V = \{ prog, expressions, s, e \}$
-  <li> Productions:
-  <ol>
-    <li>
 <pre>
-prog
-    : expressions EOF
-    ;
 
-expressions
-    : s  
-    | expressions ';' s
-    ;
+program
+    : block DOT EOF
 
-s
-    : /* empty */
-    | e
-    ;
+block
+    : consts vars proclists statement
 
-e
-    : ID '=' e
-    | e '+' e
-    | e '-' e
-    | e '*' e
-    | e '/' e
-    | e '^' e
-    | e '!'
-    | e '%'
-    | '-' e 
-    | '(' e ')'
-    | NUMBER
+consts
+    : /*empty*/
+    | CONST assignment constlist ';'
+    
+constlist
+    : /*empty*/
+    | ',' assignment constlist
+
+vars
+    : /*empty*/
+    | VAR ID varlist ';'
+    
+varlist
+    : /*empty*/
+    | ',' ID varlist
+
+proclists
+    : /*empty*/
+    | decl_proc arguments ';' block ';' proclists
+
+decl_proc
+    : PROCEDURE ID //makeNewScope
+    
+arguments
+    : /*empty*/
+    | '(' ID varlist ')'
+    
+statement
+    :  ID '=' expression
+    | CALL ID arguments
+    | BEGIN statement statementlist END
+    | IF condition THEN statement
+    | WHILE condition DO statement
+    
+statementlist
+    : /*empty*/
+    | ';' statement statementlist
+
+condition
+    : ODD expression
+    | expression '==' expression
+    | expression '#' expression
+    | expression '<' expression
+    | expression '<=' expression
+    | expression '>' expression
+    | expression '>=' expression
+    
+assignment
+    : ID '=' number
+
+number
+    : NUMBER
+    
+expression
+    : ID '=' expression
+    | PI '=' expression 
+    | E '=' expression 
+    | expression '+' expression
+    | expression '-' expression
+    | expression '*' expression
+    | expression '/' expression
+    | expression '^' expression
+    | expression '!'
+    | expression '%'
+    | '-' expression %prec UMINUS
+    | '(' expression ')'
+    | number
     | E
     | PI
     | ID 
     ;
 </pre>
   </ol>
-  <li> Start symbol: $prog$
+  <li> Start symbol: $program$
 </ol>
 <BR>
 <BR>
